@@ -1,0 +1,2 @@
+create table Requirements
+(ReqId INTEGER primary key, ReqDesc TEXT(100), ReqCatType TEXT(10), ReqPrior TEXT(6), ReqInit TEXT (10), ReqRiskType TEXT(20), ReqDate TEXT (20), ReqBy TEXT(25))

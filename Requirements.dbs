@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Requirements" database="Sqlite" id="970974a6-4b55-4afa-a0fb-4863376c32b4" >
+	<schema name="Default" >
+		<table name="ReqPriority" prior="Priority" >
+			<column name="Priority" type="TEXT" mandatory="y" />
+			<column name="PriorityDesc" type="TEXT" />
+			<index name="pk_Priority" unique="PRIMARY_KEY" >
+				<column name="Priority" />
+			</index>
+		</table>
+		<table name="ReqUserCat" prior="ReqUserCa" >
+			<column name="userCat" type="TEXT" mandatory="y" />
+			<column name="reqCatDesc" type="TEXT" mandatory="y" />
+			<index name="pk_ReqUserCat" unique="PRIMARY_KEY" >
+				<column name="userCat" />
+			</index>
+		</table>
+		<table name="Requirements" prior="TblRequirements" >
+			<column name="ReqId" type="INTEGER" mandatory="y" />
+			<column name="ReqDesc" type="TEXT" length="100" />
+			<column name="ReqCatType" type="TEXT" length="10" />
+			<column name="ReqPrior" type="TEXT" length="6" />
+			<column name="ReqInit" type="TEXT" length="10" />
+			<column name="ReqRiskType" type="TEXT" length="20" />
+			<column name="ReqDate" type="TEXT" length="20" />
+			<column name="ReqBy" prior="ReqById" type="INT" />
+			<index name="pk_Requirements" unique="PRIMARY_KEY" >
+				<column name="ReqId" />
+			</index>
+			<fk name="fk_Requirements" to_schema="Default" to_table="User" >
+				<fk_column name="ReqBy" pk="UserNo" />
+			</fk>
+			<fk name="fk_Requirements_0" to_schema="Default" to_table="ReqPriority" >
+				<fk_column name="ReqPrior" pk="Priority" />
+			</fk>
+			<fk name="fk_Requirements_1" to_schema="Default" to_table="reqRisk" >
+				<fk_column name="ReqRiskType" pk="Risk" />
+			</fk>
+			<fk name="fk_Requirements_2" to_schema="Default" to_table="reqInitiative" >
+				<fk_column name="ReqInit" pk="Inititative" />
+			</fk>
+			<fk name="fk_Requirements_3" to_schema="Default" to_table="reqCatType" >
+				<fk_column name="ReqCatType" pk="CatType" />
+			</fk>
+		</table>
+		<table name="User" prior="Us" >
+			<column name="UserId" type="INTEGER" mandatory="y" />
+			<column name="UserNo" type="TEXT" length="12" />
+			<column name="PassWord" prior="Password" type="TEXT" length="30" />
+			<column name="UserCat" type="TEXT" length="10" />
+			<index name="pk_User" unique="PRIMARY_KEY" >
+				<column name="UserId" />
+			</index>
+			<index name="unq_User" unique="UNIQUE_KEY" >
+				<column name="UserNo" />
+			</index>
+			<fk name="fk_User" to_schema="Default" to_table="ReqUserCat" >
+				<fk_column name="UserCat" pk="userCat" />
+			</fk>
+		</table>
+		<table name="reqCatType" prior="reqCatTy" >
+			<column name="CatType" type="TEXT" mandatory="y" />
+			<column name="CatTypeDesc" type="TEXT" mandatory="y" />
+			<index name="pk_reqCatType" unique="PRIMARY_KEY" >
+				<column name="CatType" />
+			</index>
+		</table>
+		<table name="reqInitiative" prior="reInitiative" >
+			<column name="Inititative" type="TEXT" mandatory="y" />
+			<column name="InitDesc" type="TEXT" mandatory="y" />
+			<index name="pk_reqInitiative" unique="PRIMARY_KEY" >
+				<column name="Inititative" />
+			</index>
+		</table>
+		<table name="reqRisk" prior="reqRis" >
+			<column name="Risk" type="TEXT" mandatory="y" />
+			<column name="RiskDesc" type="TEXT" mandatory="y" />
+			<index name="pk_reqRisk" unique="PRIMARY_KEY" >
+				<column name="Risk" />
+			</index>
+		</table>
+	</schema>
+	<layout name="Default Diagram" id="54b375d9-bfb3-4072-8df5-a5de27dae442" show_relation="columns" >
+		<entity schema="Default" name="ReqPriority" color="C1D8EE" x="855" y="114" />
+		<entity schema="Default" name="User" color="C1D8EE" x="342" y="323" />
+		<entity schema="Default" name="ReqUserCat" color="C1D8EE" x="551" y="209" />
+		<entity schema="Default" name="reqRisk" color="C1D8EE" x="1064" y="399" />
+		<entity schema="Default" name="reqInitiative" color="C1D8EE" x="912" y="551" />
+		<entity schema="Default" name="reqCatType" color="C1D8EE" x="342" y="551" />
+		<entity schema="Default" name="Requirements" color="C1D8EE" x="570" y="494" />
+		<callout x="57" y="57" pointer="Round" >
+			<comment><![CDATA[- Right-click the diagram to create new tables. 
+- Double-click table headers to edit. 
+- Get a better understanding of the schema by creating multiple diagrams.
+- Save the design to the model file, and deploy from 'Schema / Create into the database'.]]></comment>
+		</callout>
+		<script name="ReqUserCat" id="f885cd64-60ee-40d7-8cba-adf408552d39" language="SQL" >
+			<string><![CDATA[CREATE TABLE ReqUserCat ( 
+	userCat              TEXT NOT NULL  PRIMARY KEY  ,
+	reqCatDesc           TEXT NOT NULL    
+ );
+
+]]></string>
+		</script>
+		<script name="SQL_Editor" id="10eae7e8-72ef-46d2-af1c-e92a932c3855" language="SQL" >
+			<string><![CDATA[CREATE TABLE Priority ( 
+	PriorityId           INT NOT NULL  PRIMARY KEY  
+ );
+
+CREATE TABLE UserCat ( 
+	UserCatId            INT NOT NULL  PRIMARY KEY  ,
+	UserCat              TEXT     ,
+	UserCatDesc          TEXT     ,
+	CONSTRAINT unq_UserCat_UserCat UNIQUE ( UserCat )
+ );
+
+CREATE TABLE User ( 
+	UserId               INTEGER NOT NULL  PRIMARY KEY  ,
+	UserNo               TEXT     ,
+	PassWord             TEXT     ,
+	UserCat              TEXT     ,
+	CONSTRAINT unq_User UNIQUE ( UserNo ),
+	FOREIGN KEY ( UserCat ) REFERENCES UserCat( UserCat )  
+ );
+
+CREATE TABLE Requirements ( 
+	ReqId                INTEGER NOT NULL  PRIMARY KEY  ,
+	ReqDesc              TEXT     ,
+	ReqCatType           TEXT     ,
+	ReqPrior             TEXT     ,
+	ReqInit              TEXT     ,
+	ReqRiskType          TEXT     ,
+	ReqDate              TEXT     ,
+	ReqBy                INT     ,
+	FOREIGN KEY ( ReqBy ) REFERENCES User( UserNo )  ,
+	FOREIGN KEY ( ReqPrior ) REFERENCES Priority( PriorityId )  
+ );
+
+]]></string>
+		</script>
+		<script name="SQL_Editor_001" id="14027264-1c7a-4ab8-97a9-b533b3d92ebb" language="SQL" >
+			<string><![CDATA[CREATE TABLE Priority ( 
+	Priority             TEXT NOT NULL  PRIMARY KEY  ,
+	PriorityDesc         TEXT     
+ );
+
+CREATE TABLE UserCat ( 
+	UserCatId            INT NOT NULL  PRIMARY KEY  ,
+	UserCat              TEXT     ,
+	UserCatDesc          TEXT     ,
+	CONSTRAINT unq_UserCat_UserCat UNIQUE ( UserCat )
+ );
+
+CREATE TABLE User ( 
+	UserId               INTEGER NOT NULL  PRIMARY KEY  ,
+	UserNo               TEXT     ,
+	PassWord             TEXT     ,
+	UserCat              TEXT     ,
+	CONSTRAINT unq_User UNIQUE ( UserNo ),
+	FOREIGN KEY ( UserCat ) REFERENCES UserCat( UserCat )  
+ );
+
+CREATE TABLE Requirements ( 
+	ReqId                INTEGER NOT NULL  PRIMARY KEY  ,
+	ReqDesc              TEXT     ,
+	ReqCatType           TEXT     ,
+	ReqPrior             TEXT     ,
+	ReqInit              TEXT     ,
+	ReqRiskType          TEXT     ,
+	ReqDate              TEXT     ,
+	ReqBy                INT     ,
+	FOREIGN KEY ( ReqBy ) REFERENCES User( UserNo )  ,
+	FOREIGN KEY ( ReqPrior ) REFERENCES Priority( Priority )  
+ );
+
+]]></string>
+		</script>
+		<script name="SQL_Editor_002" id="3d31f18d-e86f-49e4-ada9-86a9b42e8db4" language="SQL" >
+			<string><![CDATA[CREATE TABLE ReqPriority ( 
+	Priority             TEXT NOT NULL  PRIMARY KEY  ,
+	PriorityDesc         TEXT     
+ );
+
+]]></string>
+		</script>
+		<script name="UserCat" id="16b01a3d-4fe0-4957-acbf-830cfab6b39c" language="SQL" >
+			<string><![CDATA[CREATE TABLE UserCat ( 
+	UserCatId            INT NOT NULL  PRIMARY KEY  ,
+	UserCat              TEXT     ,
+	UserCatDesc          TEXT     ,
+	CONSTRAINT unq_UserCat_UserCat UNIQUE ( UserCat )
+ );
+
+]]></string>
+		</script>
+		<script name="UserCat_001" id="19cb6b23-9450-477b-8dc2-29fbed372e8a" language="SQL" >
+			<string><![CDATA[CREATE TABLE UserCat ( 
+	UserCatId            INT NOT NULL  PRIMARY KEY  ,
+	UserCat              TEXT     ,
+	UserCatDesc          TEXT     ,
+	CONSTRAINT unq_UserCat_UserCat UNIQUE ( UserCat )
+ );
+
+]]></string>
+		</script>
+		<script name="reqInitiative" id="fee8b65c-101c-43ae-be46-41add089b079" language="SQL" >
+			<string><![CDATA[CREATE TABLE reqInitiative ( 
+	Inititative          TEXT NOT NULL  PRIMARY KEY  ,
+	InitDesc             TEXT NOT NULL    
+ );
+
+]]></string>
+		</script>
+		<script name="reqRisk" id="c9a8f101-8907-4cda-b4b4-d116b5033a5c" language="SQL" >
+			<string><![CDATA[CREATE TABLE reqRisk ( 
+	Risk                 TEXT NOT NULL  PRIMARY KEY  ,
+	RiskDesc             TEXT NOT NULL    
+ );
+
+]]></string>
+		</script>
+	</layout>
+</project>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="Requirements" database="Sqlite" id="970974a6-4b55-4afa-a0fb-4863376c32b4" >
+	<schema name="Default" >
+		<table name="Priority" prior="Priorit" >
+			<column name="Priority" type="TEXT" mandatory="y" />
+			<column name="PriorityDesc" type="TEXT" />
+			<index name="pk_Priority" unique="PRIMARY_KEY" >
+				<column name="Priority" />
+			</index>
+		</table>
+		<table name="Requirements" prior="TblRequirements" >
+			<column name="ReqId" type="INTEGER" mandatory="y" />
+			<column name="ReqDesc" type="TEXT" length="100" />
+			<column name="ReqCatType" type="TEXT" length="10" />
+			<column name="ReqPrior" type="TEXT" length="6" />
+			<column name="ReqInit" type="TEXT" length="10" />
+			<column name="ReqRiskType" type="TEXT" length="20" />
+			<column name="ReqDate" type="TEXT" length="20" />
+			<column name="ReqBy" prior="ReqById" type="INT" />
+			<index name="pk_Requirements" unique="PRIMARY_KEY" >
+				<column name="ReqId" />
+			</index>
+			<fk name="fk_Requirements" to_schema="Default" to_table="User" >
+				<fk_column name="ReqBy" pk="UserNo" />
+			</fk>
+			<fk name="fk_Requirements_0" to_schema="Default" to_table="Priority" >
+				<fk_column name="ReqPrior" pk="Priority" />
+			</fk>
+		</table>
+		<table name="User" prior="Us" >
+			<column name="UserId" type="INTEGER" mandatory="y" />
+			<column name="UserNo" type="TEXT" length="12" />
+			<column name="PassWord" prior="Password" type="TEXT" length="30" />
+			<column name="UserCat" type="TEXT" length="10" />
+			<index name="pk_User" unique="PRIMARY_KEY" >
+				<column name="UserId" />
+			</index>
+			<index name="unq_User" unique="UNIQUE_KEY" >
+				<column name="UserNo" />
+			</index>
+			<fk name="fk_User" to_schema="Default" to_table="UserCat" >
+				<fk_column name="UserCat" pk="UserCat" />
+			</fk>
+		</table>
+		<table name="UserCat" prior="UserC" >
+			<column name="UserCatId" prior="CategoryId" type="INT" mandatory="y" />
+			<column name="UserCat" prior="UserCategory" type="TEXT" />
+			<column name="UserCatDesc" prior="UserCategoryDesc" type="TEXT" />
+			<index name="pk_UserCat" unique="PRIMARY_KEY" >
+				<column name="UserCatId" />
+			</index>
+			<index name="unq_UserCat_UserCat" unique="UNIQUE_KEY" >
+				<column name="UserCat" />
+			</index>
+		</table>
+	</schema>
+	<layout name="Default Diagram" id="54b375d9-bfb3-4072-8df5-a5de27dae442" show_relation="columns" >
+		<entity schema="Default" name="UserCat" color="C1D8EE" x="589" y="228" />
+		<entity schema="Default" name="User" color="C1D8EE" x="342" y="323" />
+		<entity schema="Default" name="Priority" color="C1D8EE" x="855" y="114" />
+		<entity schema="Default" name="Requirements" color="C1D8EE" x="570" y="494" />
+		<callout x="57" y="57" pointer="Round" >
+			<comment><![CDATA[- Right-click the diagram to create new tables. 
+- Double-click table headers to edit. 
+- Get a better understanding of the schema by creating multiple diagrams.
+- Save the design to the model file, and deploy from 'Schema / Create into the database'.]]></comment>
+		</callout>
+		<script name="SQL_Editor" id="10eae7e8-72ef-46d2-af1c-e92a932c3855" language="SQL" >
+			<string><![CDATA[CREATE TABLE Priority ( 
+	PriorityId           INT NOT NULL  PRIMARY KEY  
+ );
+
+CREATE TABLE UserCat ( 
+	UserCatId            INT NOT NULL  PRIMARY KEY  ,
+	UserCat              TEXT     ,
+	UserCatDesc          TEXT     ,
+	CONSTRAINT unq_UserCat_UserCat UNIQUE ( UserCat )
+ );
+
+CREATE TABLE User ( 
+	UserId               INTEGER NOT NULL  PRIMARY KEY  ,
+	UserNo               TEXT     ,
+	PassWord             TEXT     ,
+	UserCat              TEXT     ,
+	CONSTRAINT unq_User UNIQUE ( UserNo ),
+	FOREIGN KEY ( UserCat ) REFERENCES UserCat( UserCat )  
+ );
+
+CREATE TABLE Requirements ( 
+	ReqId                INTEGER NOT NULL  PRIMARY KEY  ,
+	ReqDesc              TEXT     ,
+	ReqCatType           TEXT     ,
+	ReqPrior             TEXT     ,
+	ReqInit              TEXT     ,
+	ReqRiskType          TEXT     ,
+	ReqDate              TEXT     ,
+	ReqBy                INT     ,
+	FOREIGN KEY ( ReqBy ) REFERENCES User( UserNo )  ,
+	FOREIGN KEY ( ReqPrior ) REFERENCES Priority( PriorityId )  
+ );
+
+]]></string>
+		</script>
+	</layout>
+</project>
