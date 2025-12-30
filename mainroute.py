@@ -37,7 +37,7 @@ def mainRoute():
 def mainroute(): 
    if globalstate.globalstate().getCategory is None:
       hd.location().go("/login") 
-   print(globalstate.globalstate().getCategory())   
+   #print(globalstate.globalstate().getCategory())   
    if globalstate.globalstate().getCategory() == 'Empty':
       hd.location().go("/login") 
    if globalstate.globalstate().getCategory() == 'admin':
@@ -74,7 +74,7 @@ def mainProj():
 def mainProj():
    if globalstate.globalstate().getCategory is None:
       hd.location().go("/login") 
-   print(globalstate.globalstate().getCategory())   
+   #print(globalstate.globalstate().getCategory())   
    if globalstate.globalstate().getCategory() == 'Empty':
       hd.location().go("/login") 
    if globalstate.globalstate().getCategory() == 'user':

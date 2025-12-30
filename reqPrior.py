@@ -1,6 +1,18 @@
 import hyperdiv as hd
 import itertools
 import sqlite3
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+import webbrowser
+from  datetime import date
+from  datetime import datetime
+from docx import Document
+from docx.shared import Pt
+import xlsxwriter
+from  datetime import date
+from  datetime import datetime
+import csv
+
 
 #mainrouter = hd.router()
 foundIt = True
@@ -8,6 +20,133 @@ foundDialog = True
 listkeys = []
 listvalues = []
 listdialog = []
+
+def CreateSpreadsheet(tempvaluesPriority, tempvaluesPriorityDesc):
+     
+     d = datetime
+     currDateTime = str(d.now())
+     currDate = currDateTime[0:10]
+     currTime = currDateTime[11:]
+     currTime = currTime.replace(":","_")
+     fileName = "Prior"+currDate+"_"+currTime+".xlsx"
+     fullfilename = './Spreadsheet/'+fileName
+     workbook = xlsxwriter.Workbook(fullfilename)
+     worksheet = workbook.add_worksheet()
+     bold = workbook.add_format({"bold": True})
+     worksheet.set_column("B:B", 40)
+     worksheet.set_column("C:C", 25)
+     worksheet.set_column("D:D", 25)
+     worksheet.set_column("E:E", 12)
+     worksheet.set_column("F:F", 12)
+     worksheet.write("A1", "Id", bold)
+     worksheet.write("B1", "Description", bold)
+
+     for i in range(0,len(tempvaluesPriority)):
+          j = i + 1
+
+          worksheet.write(str("A"+str(j+1)),str(tempvaluesPriority[i]))
+          worksheet.write(str("B"+str(j+1)),str(tempvaluesPriorityDesc[i]))
+    
+     workbook.close()
+     webopen = "http://localhost:8000/"+fullfilename
+     webbrowser.open(webopen, new=0, autoraise=True)
+
+
+def CreateCSV(tempvaluesPriority, tempvaluesPriorityDesc):
+     d = datetime
+     currDateTime = str(d.now())
+     currDate = currDateTime[0:10]
+     currTime = currDateTime[11:]
+     currTime = currTime.replace(":","_")
+     fileName = "Prior"+currDate+"_"+currTime+".csv"
+     fullfilename = './csv/'+fileName
+     header = ['Priority', 'Description']
+
+
+     with open(fullfilename, "w", newline='') as f:
+          writer = csv.writer(f)
+          writer.writerow(header) 
+          for i in range(0,len(tempvaluesPriority)):
+               data = []
+               data.append(str(tempvaluesPriority[i]))
+               data.append(str(tempvaluesPriorityDesc[i]))           
+               writer.writerow(data)                    
+     f.close() 
+     webopen = "http://localhost:8000/"+fullfilename
+     print(webopen)
+     webbrowser.open(webopen, new=0, autoraise=True)
+
+def CreateWord(tempvaluesPriority, tempvaluesPriorityDesc):
+     d = datetime
+     currDateTime = str(d.now())
+     currDate = currDateTime[0:10]
+     currDate = currDate.replace("-","")
+     currTime = currDateTime[11:]
+     currTime = currTime.replace(":","")
+     currTime = currTime.replace(".","")
+     fileName = "Prior"+currDate+"_"+currTime+".docx"
+     FullFileName = './word/'+fileName
+     doc = Document()
+     doc.add_heading('Priority', level=1)
+# Add a table with 3 rows and 3 columns
+     table = doc.add_table(rows=7, cols=7)
+     table.style = 'LightShading-Accent1'
+     table.width = doc.sections[0].page_width * 0.8
+     #table.columns[1].style.font=8   
+# Populate the table
+     table.cell(0, 0).text = 'Priority'
+     table.cell(0, 1).text = 'Description'
+    
+     for i in range(0,len(tempvaluesPriority)):
+          j = i + 1
+          table.cell(j,0).text = str(tempvaluesPriority[i])
+          table.cell(j,1).text = str(tempvaluesPriorityDesc[i])  
+     for row in table.rows:
+       for cell in row.cells:
+        paragraphs = cell.paragraphs
+        for paragraph in paragraphs:
+            for run in paragraph.runs:
+                font = run.font
+                font.size= Pt(8)
+        #c.showPage()
+        #tc = table.cell(0, 0).paragraphs[0].runs
+        #tc[0].font.size = Pt(8)
+
+# Save the document
+
+     webopen = "http://localhost:8000/"+FullFileName
+
+     doc.save(FullFileName)   
+     webbrowser.open(webopen, new=0, autoraise=True)  
+
+def CreatePdf(tempvaluesPriority, tempvaluesPriorityDesc):
+     d = datetime
+     currDateTime = str(d.now())
+     currDate = currDateTime[0:10]
+     currDate = currDate.replace("-","")
+     currTime = currDateTime[11:]
+     currTime = currTime.replace(":","")
+     currTime = currTime.replace(".","")
+     fileName = "Prior"+currDate+"_"+currTime+".pdf"
+     FullFileName = './pdf/'+fileName
+     webopen = "http://localhost:8000/"+FullFileName
+     c = canvas.Canvas(FullFileName, pagesize=letter)
+     w, h = letter
+     height = int(h)
+     c.setFont("Helvetica", 14)
+     c.drawString(200, h - 40, "Priority Reporting")
+     c.setFont("Helvetica", 12)
+     c.drawString(30, height- 70, "Id")
+     c.drawString(60, height - 70, "Description")
+ 
+
+     for i in range(0, len(tempvaluesPriority)):
+          heightDetail= (height-70)-(20+(i*20))
+          c.drawString(30,heightDetail,str(tempvaluesPriority[i]))
+          c.drawString(60,heightDetail,str(tempvaluesPriorityDesc[i]))
+
+     c.save()
+     webbrowser.open(webopen, new=0, autoraise=True)
 
 
   
@@ -155,28 +294,28 @@ def addTable(dict, perpage,action,Subject,addtype,placement,types):
     tempvaluesPriorityDesc = []
 
     with hd.button_group():
-        hd.button(
+        pdf=hd.button(
                 "Pdf",
                 variant="primary",
                 prefix_icon="file-pdf",
                 size="medium",
                 outline=True
             )
-        hd.button(
+        word=hd.button(
                 "Word",
                 variant="primary",
                 prefix_icon="filetype-docx",
                 size="medium",
                 outline=True
             )
-        hd.button(
+        spreadsheet=hd.button(
                 "Spreadsheet",
                 variant="primary",
                 prefix_icon="file-spreadsheet",
                 size="medium",
                 outline=True
             )
-        hd.button(
+        csv=hd.button(
                 "Text File",
                 variant="primary",
                 prefix_icon="file-earmark-text",
@@ -264,5 +403,13 @@ def addTable(dict, perpage,action,Subject,addtype,placement,types):
             with hd.button("cancel", variant=addtype, outline=True) as cancelbutton:
                 hd.icon("fullscreen-exit", slot=cancelbutton.prefix)        
         if addbutton.clicked:
-            Adddialog.opened = True  
+            Adddialog.opened = True 
+    if pdf.clicked:
+         CreatePdf(tempvaluesPriority, tempvaluesPriorityDesc)       
+    if word.clicked:
+         CreateWord(tempvaluesPriority, tempvaluesPriorityDesc)       
+    if spreadsheet.clicked:
+         CreateSpreadsheet(tempvaluesPriority, tempvaluesPriorityDesc)                
+    if csv.clicked:
+         CreateCSV(tempvaluesPriority, tempvaluesPriorityDesc)                
     return dict 

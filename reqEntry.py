@@ -6,6 +6,11 @@ from reportlab.lib.pagesizes import letter
 import requests
 import webbrowser
 from docx import Document
+from docx.shared import Pt
+import xlsxwriter
+from  datetime import date
+from  datetime import datetime
+import csv
 
 #mainrouter = hd.router()
 foundIt = True
@@ -153,16 +158,97 @@ def GetMaxRequirement():
                 max_id = max_id + 1       
      return max_id
 
+def CreateSpreadsheet(tempvaluesReq, tempvaluesReqDesc,tempvaluesCat, tempvaluesInit, tempvaluesRisk, tempvaluesDate, tempvaluesBy):
+     
+     d = datetime
+     currDateTime = str(d.now())
+     currDate = currDateTime[0:10]
+     currTime = currDateTime[11:]
+     currTime = currTime.replace(":","_")
+     fileName = "req"+currDate+"_"+currTime+".xlsx"
+     fullfilename = './Spreadsheet/'+fileName
+     workbook = xlsxwriter.Workbook(fullfilename)
+     worksheet = workbook.add_worksheet()
+     bold = workbook.add_format({"bold": True})
+     worksheet.set_column("B:B", 40)
+     worksheet.set_column("C:C", 25)
+     worksheet.set_column("D:D", 25)
+     worksheet.set_column("E:E", 12)
+     worksheet.set_column("F:F", 12)
+     worksheet.write("A1", "Id", bold)
+     worksheet.write("B1", "Description", bold)
+     worksheet.write("C1", "Category", bold)
+     worksheet.write("D1", "Initiative", bold)
+     worksheet.write("E1", "Risk", bold)
+     worksheet.write("F1", "Date", bold)
+     worksheet.write("G1", "By",bold)
+     for i in range(0,len(tempvaluesReq)):
+          j = i + 1
+
+          worksheet.write(str("A"+str(j+1)),str(tempvaluesReq[i]))
+          worksheet.write(str("B"+str(j+1)),str(tempvaluesReqDesc[i]))
+          worksheet.write(str("C"+str(j+1)),str(tempvaluesCat[i]))
+          worksheet.write(str("D"+str(j+1)),str(tempvaluesInit[i]))
+          worksheet.write(str("E"+str(j+1)),str(tempvaluesRisk[i]))
+          worksheet.write(str("F"+str(j+1)),str(tempvaluesDate[i]))
+          worksheet.write(str("G"+str(j+1)),str(tempvaluesBy[i]))
+
+     workbook.close()
+     webopen = "http://localhost:8000/"+fullfilename
+     webbrowser.open(webopen, new=0, autoraise=True)
+
+
+def CreateCSV(tempvaluesReq,tempvaluesReqDesc, tempvaluesCat, tempvaluesInit, tempvaluesRisk, tempvaluesDate, tempvaluesBy):
+     d = datetime
+     currDateTime = str(d.now())
+     currDate = currDateTime[0:10]
+     currTime = currDateTime[11:]
+     currTime = currTime.replace(":","_")
+     fileName = "req"+currDate+"_"+currTime+".csv"
+     fullfilename = './csv/'+fileName
+     print(fullfilename)
+     header = ['Id', 'Description', 'Category', 'Initiative', 'Risk','Date','By']
+
+
+     with open(fullfilename, "w") as f:
+          writer = csv.writer(f)
+          writer.writerow(header) 
+          for i in range(0,len(tempvaluesReq)):
+               data = []
+               data.append(str(tempvaluesReq[i]))
+               data.append(str(tempvaluesReqDesc[i]))
+               data.append(str(tempvaluesCat[i]))            
+               data.append(str(tempvaluesInit[i]))            
+               data.append(str(tempvaluesRisk[i]))            
+               data.append(str(tempvaluesDate[i]))            
+               data.append(str(tempvaluesBy[i]))            
+               writer.writerow(data)                    
+     f.close() 
+     webopen = "http://localhost:8000/"+fullfilename
+     print(webopen)
+     webbrowser.open(webopen, new=0, autoraise=True)
+
 def CreateWord(tempvaluesReq, tempvaluesReqDesc,tempvaluesCat, tempvaluesInit, tempvaluesRisk, tempvaluesDate, tempvaluesBy):
+     d = datetime
+     currDateTime = str(d.now())
+     currDate = currDateTime[0:10]
+     currDate = currDate.replace("-","")
+     currTime = currDateTime[11:]
+     currTime = currTime.replace(":","")
+     currTime = currTime.replace(".","")
+     fileName = "req"+currDate+"_"+currTime+".docx"
+     FullFileName = './word/'+fileName
      doc = Document()
      doc.add_heading('Requirements', level=1)
 # Add a table with 3 rows and 3 columns
      table = doc.add_table(rows=7, cols=7)
-
+     table.style = 'LightShading-Accent1'
+     table.width = doc.sections[0].page_width * 0.8
+     #table.columns[1].style.font=8   
 # Populate the table
      table.cell(0, 0).text = 'Id'
-     table.cell(0, 1).text = 'Desc.'
-     table.cell(0, 2).text = 'Category'
+     table.cell(0, 1).text = 'Description'
+     table.cell(0, 2).text = 'Category '
      table.cell(0, 3).text = 'Initiative'
      table.cell(0, 4).text = 'Risk'
      table.cell(0, 5).text = 'Date'
@@ -170,19 +256,41 @@ def CreateWord(tempvaluesReq, tempvaluesReqDesc,tempvaluesCat, tempvaluesInit, t
      for i in range(0,len(tempvaluesReq)):
           j = i + 1
           table.cell(j,0).text = str(tempvaluesReq[i])
-
-
+          table.cell(j,1).text = str(tempvaluesReqDesc[i])  
+          table.cell(j,2).text = str(tempvaluesCat[i])  
+          table.cell(j,3).text = str(tempvaluesInit[i])  
+          table.cell(j,4).text = str(tempvaluesRisk[i])  
+          table.cell(j,5).text = str(tempvaluesDate[i])  
+          table.cell(j,6).text = str(tempvaluesBy[i])  
+     for row in table.rows:
+       for cell in row.cells:
+        paragraphs = cell.paragraphs
+        for paragraph in paragraphs:
+            for run in paragraph.runs:
+                font = run.font
+                font.size= Pt(8)
+        #c.showPage()
+        #tc = table.cell(0, 0).paragraphs[0].runs
+        #tc[0].font.size = Pt(8)
 
 # Save the document
-     doc.save('example1.docx')   
-     webbrowser.open("http://localhost:8000/example1.docx", new=0, autoraise=True)  
+     webopen = "http://localhost:8000/"+FullFileName
+     doc.save(FullFileName)   
+     webbrowser.open(webopen, new=0, autoraise=True)  
 
 def CreatePdf(tempvaluesReq, tempvaluesReqDesc,tempvaluesCat, tempvaluesInit, tempvaluesRisk, tempvaluesDate, tempvaluesBy):
-     c = canvas.Canvas("./pdf/hello-world.pdf", pagesize=letter)
+     d = datetime
+     currDateTime = str(d.now())
+     currDate = currDateTime[0:10]
+     currDate = currDate.replace("-","")
+     currTime = currDateTime[11:]
+     currTime = currTime.replace(":","")
+     currTime = currTime.replace(".","")
+     fileName = "req"+currDate+"_"+currTime+".pdf"
+     FullFileName = './pdf/'+fileName
+     webopen = "http://localhost:8000/"+FullFileName
+     c = canvas.Canvas(FullFileName, pagesize=letter)
      w, h = letter
-     print("width and height")
-     print(w)
-     print(h)
      height = int(h)
      c.setFont("Helvetica", 14)
      c.drawString(200, h - 40, "Requirements Reporting")
@@ -192,23 +300,21 @@ def CreatePdf(tempvaluesReq, tempvaluesReqDesc,tempvaluesCat, tempvaluesInit, te
      c.drawString(240, height - 70, "Category")
      c.drawString(300, height - 70, "Initiative")
      c.drawString(360, height - 70, "Risk")
-     c.drawString(400, height - 70, "Date")    
-     c.drawString(460, height - 70, "By")    
+     c.drawString(420, height - 70, "Date")    
+     c.drawString(500, height - 70, "By")    
 
-     c.setFont("Helvetica", 9)
      for i in range(0, len(tempvaluesReq)):
           heightDetail= (height-70)-(20+(i*20))
           c.drawString(30,heightDetail,str(tempvaluesReq[i]))
-          print(str(tempvaluesReqDesc[i])[:30])
           c.drawString(60,heightDetail,str(tempvaluesReqDesc[i])[:30])
           c.drawString(240,heightDetail,tempvaluesCat[i])
           c.drawString(300,heightDetail,tempvaluesInit[i])
           c.drawString(360,heightDetail,tempvaluesRisk[i])
-          c.drawString(400,heightDetail,tempvaluesDate[i])
-          c.drawString(460,heightDetail,tempvaluesBy[i])
-          #c.showPage()
+          c.drawString(420,heightDetail,tempvaluesDate[i])
+          c.drawString(500,heightDetail,tempvaluesBy[i])
+
      c.save()
-     webbrowser.open("http://localhost:8000/pdf/hello-world.pdf", new=0, autoraise=True)
+     webbrowser.open(webopen, new=0, autoraise=True)
 
 
 
@@ -359,4 +465,8 @@ def addTable(dict, perpage,action,Subject,addtype,placement,types):
          CreatePdf(tempvaluesReq,tempvaluesReqDesc, tempvaluesCat, tempvaluesInit, tempvaluesRisk, tempvaluesDate, tempvaluesBy)       
     if word.clicked:
          CreateWord(tempvaluesReq,tempvaluesReqDesc, tempvaluesCat, tempvaluesInit, tempvaluesRisk, tempvaluesDate, tempvaluesBy)           
+    if spread.clicked:
+         CreateSpreadsheet(tempvaluesReq,tempvaluesReqDesc, tempvaluesCat, tempvaluesInit, tempvaluesRisk, tempvaluesDate, tempvaluesBy)                
+    if csv.clicked:
+         CreateCSV(tempvaluesReq,tempvaluesReqDesc, tempvaluesCat, tempvaluesInit, tempvaluesRisk, tempvaluesDate, tempvaluesBy)                     
     return dict 
